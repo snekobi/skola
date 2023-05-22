@@ -126,6 +126,9 @@ canvas.create_rectangle(x + hrubka, y, x + 10, y + 80, fill = "black", outline =
 
 #vela kodov naraz
 file = open("ciarove_kody.txt", "r")
+root = Tk()
+canvas = Canvas(root, width= 500, height = 400, bg = "white")
+canvas.pack()
 def groupcodes():
     global x, y, hrubka
     for i in range(3):
@@ -143,7 +146,7 @@ for i in range(3):
     groupcodes()
     y += 120
     x = 10
-
+root.mainloop()
 
 #4
 file = open("hlasovanie1.txt", "r")
@@ -158,29 +161,40 @@ for i in range(len(file.readlines())):
         pass
 
 #5
-root = Tk()
-canvas = Canvas(root, width= 650, height = 400, bg = "white")
+import sys
+import tkinter
+input = sys.stdin.readline
+
+root = tkinter.Tk()
+
+canvas = tkinter.Canvas(width = 800, height = 550)
 canvas.pack()
 
-file = open("sr.txt", "r")
-file = [i.strip().split() for i in file.readlines()]
-for i in file:
-    #a = file.readline(i)
-    x = int(i[0])
-    y = int(i[1])
-    canvas.create_rectangle(x, y, x, y)
+slovensko = [i.strip().split() for i in open("sr.txt", 'r').readlines()]
+for x, y in slovensko:
+    x, y = int(x), int(y)
+    canvas.create_oval(x, y, x, y, outline = 'green')
 
-file1 = open("sneh.txt", "r")
-file1 = [j.strip().split() for j in file1.readlines()]
-def keypress(event):
-    key = event.char
-if root.bind("<Key>", keypress):
-    for j in file1:
-        x1 = int(j[0])
-        y1 = int(j[1])
-        canvas.create_oval(x1, y1, x1, y1, width = 5)
-        print(*j)
+strediska = [i.split() for i in open("sneh.txt", 'r').readlines()]
+# strediska boli aj von z mapy, treba ich posunut (cca. o 100 hore)
+
+def vykresli(event):
+    global cislo_strediska
+    canvas.delete('stredisko')
+    canvas.delete('udaj')
+    x, y = int(strediska[cislo_strediska][0]), int(strediska[cislo_strediska][1])
+    canvas.create_oval(x, y - 100, x, y - 100, width = 5, outline = 'red', tags = 'stredisko')
+    canvas.create_text(500, 500, text  = strediska[cislo_strediska], tags = 'udaj')
+    cislo_strediska += 1
+    if (cislo_strediska == len(strediska) - 1):
+        sys.exit()
+
+cislo_strediska = 0
+canvas.bind_all('<Key>', vykresli)
+
 root.mainloop()
+
+
 
 #7
 with open("hada.txt", "r") as hada:
@@ -267,51 +281,7 @@ with open("meteo_stanice.txt", "r") as merania:
 
 
 #9
-pocetnie = 0
-hodlist = []
-nielist = []
-with open("spokojnost_1.txt", "r") as spoko:
-    for line in spoko:
-        anonie = line.split()
-        odpoved = anonie[1]
-        if odpoved == "nie":
-            pocetnie += 1
-            nielist.append(anonie[0][:2])
-        hodlist.append(anonie[0][:2])
-    print("Pocet negativnych vyjadreni:", pocetnie)
-    for i in range (0, len(nielist)):
-        nielist[i] = int(nielist[i])
-    print(nielist)
-    def najnespoko(hodlist):
-        return max(set(hodlist), key = hodlist.count)
-    print("Hodina kedy bolo najviac nespokojnych zakaznikov:", najnespoko(hodlist))
-    #print(Counter(nielist))
 
-
-root = Tk()
-canvas = Canvas(root, width= 480, height = 520, bg = "white")
-canvas.pack()
-pocetlist = []
-x = 10
-y = 500
-hod = 0 
-for i in range(24):
-    canvas.create_rectangle(x, y, x + 20, y + 1)
-    canvas.create_text(x, y + 10,  text = ("%02d" % (hod, )), fill = "red", font = ("Arial 10"))
-    hod += 1
-    x += 20
-
-#for i in Counter(nielist):
-    #for j in i:
-        #pocetlist.append(i[1])
-for i in range (0, len(nielist)):
-    x = 0
-    y = 490
-    canvas.create_rectangle(x + ((nielist[i])*20) , y + 10, x + (nielist[i])*20 + 20, y - 20, fill = "red")
-    
-    
-print(pocetlist)
-root.mainloop()
 
 import sys
 import tkinter
@@ -373,7 +343,7 @@ for i, clen in enumerate(vyraz):
             break
         ofarbenie[i] = farby[stak[-1]]
         stak.pop()
-ok &= (lave == prave) # Je rovnaky pocet pravych aj lavych?
+ok = (lave == prave) # Je rovnaky pocet pravych aj lavych?
 if (not ok):
     canvas.create_text(200, 200, text = "Uzátvorkovanie nie je správne")
 else:
@@ -500,6 +470,7 @@ counts = count_matched_numbers("12 loteria1.txt", lottery_numbers)
 print_results(correct_numbers_user, counts)
 
 
+
 #13
 root = Tk()
 canvas = Canvas(root, width= 600, height = 300, bg = "white")
@@ -549,9 +520,12 @@ def reverse_word(word):
 def transform_text(file_name):
     with open(file_name, 'r') as file:
         lines = file.readlines()
-
+    choice = random.randint(0,1)
     # Zmena poradia riadkov
-    random.shuffle(lines)
+    if choice == 0:
+        random.shuffle(lines)
+    else:
+        pass
 
     transformed_lines = []
     for line in lines:
@@ -720,7 +694,7 @@ with open("20 cisla.txt", "r") as file:
             
         print((konverzia(cislo1)))
 
-"""
+
 #21
 def check_visited_stations(stations_visited, all_stations):
     return set(stations_visited) == set(all_stations)
@@ -767,7 +741,28 @@ else:
 # Výpis výsledkovej listiny
 print_results(start_numbers, times, stations_visited)
 
-"""
+#23
+import sys
+input = sys.stdin.readline
+
+k = list(map(int, input().split()))[:-1]
+m = len(k)
+s = input()[:-1]
+n = len(s)
+_s = [' '] * n
+medzier = 0
+for i in range(n):
+    if (s[i] == ' '):
+        medzier += 1
+        continue
+    pozicia = ord(s[i]) - 96
+    posun = k[i % m - medzier]
+    if (pozicia + posun > 26):
+        pozicia = (pozicia + posun) % 26
+    else:
+        pozicia += posun
+    _s[i] = chr(pozicia + 96)
+print(''.join(_s))
 
 
 #24
@@ -817,6 +812,8 @@ for i in range (0, len(nmaplst)):
         x = 10
         y += 50
 root.mainloop()
+
+
 
 #25
 randkod = random.randint(10000000, 99999999)
@@ -972,7 +969,7 @@ with open("29 poprehadzovany_text1_vstup.txt", "r") as ptext:
     for line in udaje:
         for word in line.split():
             ptextlst.append(word)
-    print(ptextlst)
+    #print(ptextlst)
     for word in ptextlst:
         lstword = list(word[1:-1])
         if len(lstword) > 2:
@@ -982,10 +979,44 @@ with open("29 poprehadzovany_text1_vstup.txt", "r") as ptext:
         randword = word[0] + "".join(lstword) + word[-1]
         print(randword, end = " ")
 
-#29
-with open("30 kompresia_obrazka1.txt", "r") as obraz:
-    rozmery = obraz.readline().strip("\n")
-    print(rozmery)
+#30
+def spracuj_riadok(riadok):
+    spracovany_riadok = ""
+    aktualny_znak = riadok[0]
+    pocet_znakov = 1
+
+    for znak in riadok[1:]:
+        if znak == aktualny_znak:
+            pocet_znakov += 1
+        else:
+            spracovany_riadok += str(pocet_znakov) + " "
+            aktualny_znak = znak
+            pocet_znakov = 1
+
+    spracovany_riadok += str(pocet_znakov) + " "
+    return spracovany_riadok
+
+
+# Načítanie vstupného súboru
+with open("kompresia_obrazka_1.txt", "r") as subor:
+    obsah = subor.readlines()
+
+# Načítanie rozmierov obrázka
+rozmery = obsah[0].strip().split()
+sirka = int(rozmery[0])
+vyska = int(rozmery[1])
+
+# Spracovanie riadkov obrázka
+vystup = []
+for riadok in obsah[1:]:
+    spracovany_riadok = spracuj_riadok(riadok.strip())
+    vystup.append(spracovany_riadok)
+
+# Uloženie výstupného súboru
+with open("kompresia_obrazka_vystup.txt", "w") as subor_vystup:
+    subor_vystup.write(f"{sirka} {vyska}\n")
+    for riadok in vystup:
+        subor_vystup.write(riadok + "\n")
 
 """
 
